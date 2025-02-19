@@ -7,8 +7,6 @@
 #
 # It then restarts the network adapter to apply the changes.
 
-
-
 # Define the adapter descriptions and their respective registry settings
 $adapters = @{
     "Realtek 8852CE WiFi 6E PCI-E NIC" = @{
@@ -17,10 +15,20 @@ $adapters = @{
         "RegROAMSensitiveLevel" = "127"
     }
     "MediaTek Wi-Fi 6 MT7921 Wireless LAN Card" = @{
-        "BandSelection" = "2"
-        "RoamIndicateTh" = "0"
+        "Band Selection" = "2"
+        "RoamIndicateTh" = "2"
         "CurrPhyMode" = "1"
     }
+}
+
+# Define the path for the backup file and the flag file
+$backupDir = "C:\ProgramData\WiFiAdapterConfig"
+$backupFilePath = "$backupDir\WiFiAdapterConfigBackup.txt"
+$flagFilePath = "$backupDir\WiFiAdapterConfigFlag.txt"
+
+# Ensure the directory exists
+if (-not (Test-Path $backupDir)) {
+    New-Item -Path $backupDir -ItemType Directory -Force
 }
 
 # Load the .NET Registry class
@@ -62,6 +70,17 @@ foreach ($subKey in $subKeys) {
 }
 
 if ($null -ne $regPath) {
+    # Backup current registry values
+    if (-not (Test-Path $backupFilePath)) {
+        $backupContent = @()
+        foreach ($setting in $adapterSettings.Keys) {
+            $currentValue = [RegHelper]::GetValue($regPath.Substring(5), $setting)
+            $backupContent += "$setting=$currentValue"
+        }
+        $backupContent | Out-File -FilePath $backupFilePath
+        Write-Output "Current registry values backed up successfully."
+    }
+
     # Update the registry values
     foreach ($setting in $adapterSettings.Keys) {
         Set-ItemProperty -Path $regPath -Name $setting -Value $adapterSettings[$setting] -Type String
@@ -77,6 +96,10 @@ if ($null -ne $regPath) {
     } else {
         Write-Output "Failed to find network adapter to restart."
     }
+
+    # Create a flag file for the detection rule
+    New-Item -Path $flagFilePath -ItemType File -Force
+    Write-Output "Flag file created successfully."
 } else {
     Write-Output "Network adapter not found."
 }
