@@ -55,6 +55,7 @@ $subKeys = [RegHelper]::GetSubKeyNames("SYSTEM\CurrentControlSet\Control\Class\{
 # Initialize a variable to store the correct registry path and adapter settings
 $regPath = $null
 $adapterSettings = $null
+$foundAdapterDesc = $null
 
 # Loop through each subkey to find the correct network adapter
 foreach ($subKey in $subKeys) {
@@ -63,6 +64,7 @@ foreach ($subKey in $subKeys) {
         if ([RegHelper]::GetValue($keyPath, "DriverDesc") -eq $adapterDesc) {
             $regPath = "HKLM:\$keyPath"
             $adapterSettings = $adapters[$adapterDesc]
+            $foundAdapterDesc = $adapterDesc
             break
         }
     }
@@ -73,8 +75,10 @@ if ($null -ne $regPath) {
     # Backup current registry values
     if (-not (Test-Path $backupFilePath)) {
         $backupContent = @()
+        # Prepend the adapter description
+        $backupContent += $foundAdapterDesc
         foreach ($setting in $adapterSettings.Keys) {
-            $currentValue = [RegHelper]::GetValue($regPath.Substring(5), $setting)
+            $currentValue = [RegHelper]::GetValue($regPath.Substring(6), $setting)
             $backupContent += "$setting=$currentValue"
         }
         $backupContent | Out-File -FilePath $backupFilePath
