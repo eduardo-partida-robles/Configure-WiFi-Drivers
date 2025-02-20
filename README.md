@@ -8,7 +8,6 @@ This repository contains PowerShell scripts to configure and restore settings fo
 
 This script checks for the existence of the Realtek 8852CE WiFi 6E PCI-E NIC. If the adapter is found, it backups the current configuration, it then updates the following configuration settings in the registry:
 
-  - Disable 2.4 GHz
   - Change 5 GHz mode to IEEE 802.11a/n/nc
   - Disable "Roaming Sensitivity Level"
 

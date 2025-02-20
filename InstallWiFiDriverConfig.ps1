@@ -1,15 +1,13 @@
 ## This script configures the Realtek 8852CE WiFi 6E PCI-E NIC by:
 ##  - Backing up current registry settings to a file (with the adapter description as the first line)
-##  - Updating the registry values to:
-##       WifiProtocol_2g = 0
-##       WifiProtocol_5g = 26
-##       RegROAMSensitiveLevel = 127
+##  - Updating the registry values to change the settings to:
+##       WiFi 5 (802.11ac) protocol for 5GHz band
+##       Roaming sensitivity level disabled
 ##  - Restarting the network adapter
 ##  - Creating a flag file
 
 $realtekAdapter = "Realtek 8852CE WiFi 6E PCI-E NIC"
 $realtekSettings = @{
-    "WifiProtocol_2g"        = "0"
     "WifiProtocol_5g"        = "26"
     "RegROAMSensitiveLevel"  = "127"
 }
